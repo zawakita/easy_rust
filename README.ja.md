@@ -3566,7 +3566,11 @@ fn main() {
 }
 ```
 
-The message is: "thread 'main' panicked at 'called `Option::unwrap()` on a `None` value', src\main.rs:14:9".
+The message is:
+
+```text
+thread 'main' panicked at 'called `Option::unwrap()` on a `None` value', src\main.rs:14:9
+```
 
 But we don't need to use `.unwrap()`. We can use a `match`. Then we can print the value we have `Some`, and not touch it if we have `None`. For example:
 
@@ -12154,6 +12158,52 @@ fn main() {
 
 This prints the same thing.
 
+As of Rust 1.50 (released in February 2021), there is now a method called `then()`, which turns a `bool` into an `Option`. With `then()` you write a closure, and the closure is called if the item is `true`. Also, whatever is returned from the closure goes inside the `Option`. Here's a small example:
+
+```rust
+fn main() {
+
+    let (tru, fals) = (true.then(|| 8), false.then(|| 8));
+    println!("{:?}, {:?}", tru, fals);
+}
+```
+
+This just prints `Some(8), None`.
+
+And now a bit larger example:
+
+```rust
+fn main() {
+    let bool_vec = vec![true, false, true, false, false];
+    
+    let option_vec = bool_vec
+        .iter()
+        .map(|item| {
+            item.then(|| { // Put this inside of map so we can pass it on
+                println!("Got a {}!", item);
+                "It's true, you know" // This goes inside Some if it's true
+                                      // Otherwise it just passes on None
+            })
+        })
+        .collect::<Vec<_>>();
+
+    println!("Now we have: {:?}", option_vec);
+
+    // That printed out the Nones too. Let's filter map them out in a new Vec.
+    let filtered_vec = option_vec.into_iter().filter_map(|c| c).collect::<Vec<_>>();
+
+    println!("And without the Nones: {:?}", filtered_vec);
+}
+```
+
+And here's what this prints:
+
+```text
+Got a true!
+Got a true!
+Now we have: [Some("It\'s true, you know"), None, Some("It\'s true, you know"), None, None]
+And without the Nones: ["It\'s true, you know", "It\'s true, you know"]
+```
 
 ### Vec
 
@@ -12976,7 +13026,7 @@ We know that you can use attributes like `#[cfg(test)]` and `#[cfg(windows)]` to
 
 ```rust
 fn main() {
-    let helpful_message = if cfg!(windows) { "backslash" } else { "slash" };
+    let helpful_message = if cfg!(target_os = "windows") { "backslash" } else { "slash" };
 
     println!(
         "...then in your hard drive, type the directory name followed by a {}. Then you...",
@@ -13683,7 +13733,7 @@ use std::env::args;
 fn main() {
     let input = args();
 
-    input.into_iter().skip(1).for_each(|item| {
+    input.skip(1).for_each(|item| {
         println!("You wrote {}, which in capital letters is {}", item, item.to_uppercase());
     })
 }
@@ -13704,20 +13754,32 @@ One common use for `Args` is for user settings. You can make sure that the user 
 ```rust
 use std::env::args;
 
-fn main() {
-    let keywords = ["capital".to_string(), "lowercase".to_string()]; // User needs to write one of these after cargo run
-    let input_vec = args().into_iter().collect::<Vec<String>>(); // Make a vec of all the args
+enum Letters {
+    Capitalize,
+    Lowercase,
+    Nothing,
+}
 
-    if input_vec.len() > 2 && keywords.contains(&input_vec[1].to_lowercase()) { // It must be at least 3 in length, and the user needs to write either "capital" or "lowercase".
-                                                                                // We use .to_lowercase() so the user can write "Capital" or "CAPITAL", etc.
-        if input_vec[1].to_lowercase() == "capital" {
-            input_vec.into_iter().skip(2).for_each(|word| println!("{}", word.to_uppercase()));
-        } else {
-            input_vec.into_iter().skip(2).for_each(|word| println!("{}", word.to_lowercase()));
+fn main() {
+    let mut changes = Letters::Nothing;
+    let input = args().collect::<Vec<_>>();
+
+    if input.len() > 2 {
+        match input[1].as_str() {
+            "capital" => changes = Letters::Capitalize,
+            "lowercase" => changes = Letters::Lowercase,
+            _ => {}
         }
-    } else {
-        println!(r#"Please write either "capital" or "lowercase" and then some input."#);
     }
+
+    for word in input.iter().skip(2) {
+      match changes {
+        Letters::Capitalize => println!("{}", word.to_uppercase()),
+        Letters::Lowercase => println!("{}", word.to_lowercase()),
+        _ => println!("{}", word)
+      }
+    }
+    
 }
 ```
 
@@ -13726,13 +13788,13 @@ Here are some examples of what it gives:
 Input: `cargo run please make capitals`:
 
 ```text
-Please write either "capital" or "lowercase" and then some input.
+make capitals
 ```
 
 Input: `cargo run capital`:
 
 ```text
-Please write either "capital" or "lowercase" and then some input.
+// Nothing here...
 ```
 
 Input: `cargo run capital I think I understand now`:
