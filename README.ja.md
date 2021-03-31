@@ -2014,29 +2014,29 @@ fn main() {
 ## Tuples
 **[See this chapter on YouTube](https://youtu.be/U67Diy6SlTg)**
 
-Tuples in Rust use `()`. We have seen many empty tuples already, because *nothing* in a function actually means an empty tuple:
+Rustのタプルは `()` を使います。私たちはすでに多くの空のタプルを見てきました。なぜなら、関数内の *nothing* は、実際には空のタプルを意味するからです。
 
 ```text
 fn do_something() {}
 ```
 
-is actually short for:
+これは実際には以下の略です。
 
 ```text
 fn do_something() -> () {}
 ```
 
-That function gets nothing (an empty tuple), and returns nothing (an empty tuple). So we have been using tuples a lot already. When you don't return anything in a function, you actually return an empty tuple.
+この関数は何も取得せず（空のタプル）、何も返しません（空のタプル）。ですから、私たちはすでにタプルをよく使っています。関数が何も返さない場合、実際には空のタプルを返します。
 
 ```rust
 fn just_prints() {
-    println!("I am printing"); // Adding ; means we return an empty tuple
+    println!("I am printing"); // ;（セミコロン）を加えると、空のタプルを返すことになる。
 }
 
 fn main() {}
 ```
 
-But tuples can hold many things, and can hold different types too. Items inside a tuple are also indexed with numbers 0, 1, 2, and so on. But to access them, you use a `.` instead of a `[]`. Let's put a whole bunch of types into a single tuple.
+しかし、タプルはさまざまなものを保持することができ、異なるタイプのものも保持することができます。タプル内の項目も0、1、2などの数字でインデックスされています。しかし、それらにアクセスするには `[]` ではなく `.` を使います。たくさんの型を1つのタプルに入れてみましょう。
 
 ```rust
 fn main() {
@@ -2058,7 +2058,7 @@ Sixth item: {:?}",
 }
 ```
 
-This prints:
+出力は以下の通り。
 
 ```text
 Inside the tuple is: First item: "Here is a name"
@@ -2069,10 +2069,9 @@ Fifth item: [8, 9, 10]
 Sixth item: 7.7
 ```
 
-That tuple is of type `(&str, i32, Vec<char>, char, [i32; 3], f64)`.
+このタプルは `(&str, i32, Vec<char>, char, [i32; 3], f64)` という型です。
 
-
-You can use a tuple to create multiple variables. Take a look at this code:
+タプルを使って複数の変数を作ることができます。以下のコードを見てみましょう。
 
 ```rust
 fn main() {
@@ -2080,7 +2079,7 @@ fn main() {
 }
 ```
 
-`str_vec` has three items in it. What if we want to pull them out? That's where we can use a tuple.
+`str_vec` には3つの項目があります。それらを取り出したい場合はタプルを使う事ができます。
 
 ```rust
 fn main() {
@@ -2091,9 +2090,9 @@ fn main() {
 }
 ```
 
-That prints `"two"`, which is what `b` is. This is called *destructuring*. That is because first the variables are inside a structure, but then we made `a`, `b`, and `c` that are not inside a structure.
+`b` が何であるかを出力するので `"two"` が出力されます。これは *destructuring* と呼ばれています。まず変数は構造の中にあるのですが、その後、構造の中にない `a`、`b`、`c` を作ったからです。
 
-If you need to destructure but don't want all the variables, you can use `_`.
+構造を変える必要があるが、すべての変数を必要としない場合は、`_` を使用することができます。
 
 ```rust
 fn main() {
@@ -2103,9 +2102,9 @@ fn main() {
 }
 ```
 
-Now it only creates a variable called `variable` but doesn't make a variable for the others.
+`variable` という変数だけが作成され、他の変数は作成されません。
 
-There are many more collection types, and many more ways to use arrays, vecs, and tuples. We will learn more about them too, but first we will learn control flow.
+コレクションの種類は他にも沢山あり、配列、ベクタ、タプルの使用方法も数多くあります。これらについても学んでいきますが、まずは制御フローを学びましょう。
 
 ## Control flow
 **See this chapter on YouTube: [Part 1](https://youtu.be/UAymDOpv_us) and [Part 2](https://youtu.be/eqysTfiiQZs)**
